@@ -1,20 +1,22 @@
 import { setAuthTokens } from '../index';
-import { STORAGE_KEY } from '../src/StorageKey';
+import {SetStorageKey} from "../src/StorageKeys";
 
 describe('setAuthTokens', () => {
   it('stores the tokens in localstorage', () => {
     // GIVEN
     // localStorage is empty
-    localStorage.removeItem(STORAGE_KEY)
+    localStorage.removeItem('key')
 
     // WHEN
     // I call setAuthTokens
+    const storage_key = 'key'
+
     const tokens = { accessToken: 'accesstoken', refreshToken: 'refreshtoken' }
-    setAuthTokens(tokens)
+    setAuthTokens(storage_key, tokens)
 
     // THEN
     // I expect them to have been stored in localstorage
-    const storedTokens = localStorage.getItem(STORAGE_KEY) as string
+    const storedTokens = localStorage.getItem('key') as string
     expect(JSON.parse(storedTokens)).toEqual(tokens)
   })
 })

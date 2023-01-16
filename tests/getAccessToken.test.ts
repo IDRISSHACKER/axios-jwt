@@ -1,5 +1,4 @@
 import { getAccessToken, authTokenInterceptor, getBrowserSessionStorage } from '../index';
-import { STORAGE_KEY } from '../src/StorageKey';
 
 describe('getAccessToken', () => {
   beforeEach(function () {
@@ -11,7 +10,7 @@ describe('getAccessToken', () => {
     it('returns undefined if tokens are not set', () => {
       // GIVEN
       // localStorage is empty
-      localStorage.removeItem(STORAGE_KEY)
+      localStorage.removeItem('key')
 
       // WHEN
       // I call getAccessToken
@@ -26,7 +25,7 @@ describe('getAccessToken', () => {
       // GIVEN
       // Both tokens are stored in localstorage
       const tokens = { accessToken: 'accesstoken', refreshToken: 'refreshtoken' }
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(tokens))
+      localStorage.setItem('key', JSON.stringify(tokens))
 
       // WHEN
       // I call getAccessToken
@@ -43,13 +42,13 @@ describe('getAccessToken', () => {
       const getStorage = getBrowserSessionStorage
       const requestRefresh = jest.fn()
 
-      authTokenInterceptor({getStorage, requestRefresh })
+      authTokenInterceptor('key', {getStorage, requestRefresh })
     })
 
     it('returns undefined if tokens are not set', () => {
       // GIVEN
       // localStorage is empty
-      sessionStorage.removeItem(STORAGE_KEY)
+      sessionStorage.removeItem('key')
 
       // WHEN
       // I call getAccessToken
@@ -64,7 +63,7 @@ describe('getAccessToken', () => {
       // GIVEN
       // Both tokens are stored in localstorage
       const tokens = { accessToken: 'accesstoken_session', refreshToken: 'refreshtoken_session' }
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(tokens))
+      sessionStorage.setItem('key', JSON.stringify(tokens))
 
       // WHEN
       // I call getAccessToken

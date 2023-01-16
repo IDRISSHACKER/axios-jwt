@@ -1,8 +1,9 @@
 import { setAuthTokens } from './setAuthTokens'
 import { StorageProxy } from './StorageProxy'
 import { Token } from './Token'
-import { STORAGE_KEY } from './StorageKey'
 import { IAuthTokens } from './IAuthTokens'
+import { GetStorageKey } from './StorageKeys'
+import {StorageKey} from "./StorageKeyType";
 
 // PRIVATE
 
@@ -11,7 +12,9 @@ import { IAuthTokens } from './IAuthTokens'
  * @returns {IAuthTokens} Object containing refresh and access tokens
  */
 const getAuthTokens = (): IAuthTokens | undefined => {
-  const rawTokens = StorageProxy.Storage?.get(STORAGE_KEY)
+  const storageKey = GetStorageKey()
+  console.log(storageKey)
+  const rawTokens = StorageProxy.Storage?.get(storageKey)
   if (!rawTokens) return
 
   try {
@@ -27,16 +30,17 @@ const getAuthTokens = (): IAuthTokens | undefined => {
 
 /**
  * Sets the access token
+ * @param storage_key
  * @param {string} token - Access token
  */
-export const setAccessToken = (token: Token): void => {
+export const setAccessToken = (storage_key: StorageKey, token: Token): void => {
   const tokens = getAuthTokens()
   if (!tokens) {
     throw new Error('Unable to update access token since there are not tokens currently stored')
   }
 
   tokens.accessToken = token
-  setAuthTokens(tokens)
+  setAuthTokens(storage_key, tokens)
 }
 
 /**
@@ -60,7 +64,7 @@ export const getAccessToken = (): Token | undefined => {
 /**
  * Clears both tokens
  */
-export const clearAuthTokens = (): void => StorageProxy.Storage?.remove(STORAGE_KEY)
+export const clearAuthTokens = (): void => StorageProxy.Storage?.remove(GetStorageKey())
 
 /**
  * Checks if refresh tokens are stored

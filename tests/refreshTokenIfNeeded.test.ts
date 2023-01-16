@@ -1,7 +1,6 @@
 import { refreshTokenIfNeeded } from '../index';
 import jwt from 'jsonwebtoken';
 import { AxiosError } from 'axios'
-import { STORAGE_KEY } from '../src/StorageKey';
 
 function makeAxiosErrorWithStatusCode(statusCode: number) {
   const error = new AxiosError(
@@ -35,7 +34,7 @@ describe('refreshTokenIfNeeded', () => {
 
     // and this token is stored in local storage
     const tokens = { accessToken: expiredToken, refreshToken: 'refreshtoken' }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(tokens))
+    localStorage.setItem('key', JSON.stringify(tokens))
 
     // and I have a requestRefresh function that throws an error
     const requestRefresh = async () => {
@@ -47,7 +46,7 @@ describe('refreshTokenIfNeeded', () => {
 
     // WHEN
     // I call refreshTokenIfNeeded
-    await refreshTokenIfNeeded(requestRefresh).catch(catchFn)
+    await refreshTokenIfNeeded('key', requestRefresh).catch(catchFn)
 
     // THEN
     // I expect the error handler to have been called with the right error
@@ -67,7 +66,7 @@ describe('refreshTokenIfNeeded', () => {
 
     // and this token is stored in local storage
     const tokens = { accessToken: expiredToken, refreshToken: 'refreshtoken' }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(tokens))
+    localStorage.setItem('key', JSON.stringify(tokens))
 
     // and I have a requestRefresh function that throws an error
     const requestRefresh = async () => {
@@ -81,13 +80,13 @@ describe('refreshTokenIfNeeded', () => {
 
     // WHEN
     // I call refreshTokenIfNeeded
-    await refreshTokenIfNeeded(requestRefresh).catch(catchFn)
+    await refreshTokenIfNeeded('key', requestRefresh).catch(catchFn)
 
     // THEN
     // I expect the error handler to have been called with the right error
     expect(catchFn).toHaveBeenLastCalledWith(new Error('Got 401 on token refresh; clearing both auth tokens'))
     // and the storage to have been cleared
-    expect(localStorage.getItem(STORAGE_KEY)).toBeNull()
+    expect(localStorage.getItem('key')).toBeNull()
   })
 
   it('throws an error and clears the storage if the requestRefresh function throws an error with a 422 status code', async () => {
@@ -103,7 +102,7 @@ describe('refreshTokenIfNeeded', () => {
 
     // and this token is stored in local storage
     const tokens = { accessToken: expiredToken, refreshToken: 'refreshtoken' }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(tokens))
+    localStorage.setItem('key', JSON.stringify(tokens))
 
     // and I have a requestRefresh function that throws an error
     const requestRefresh = async () => {
@@ -117,13 +116,13 @@ describe('refreshTokenIfNeeded', () => {
 
     // WHEN
     // I call refreshTokenIfNeeded
-    await refreshTokenIfNeeded(requestRefresh).catch(catchFn)
+    await refreshTokenIfNeeded('key', requestRefresh).catch(catchFn)
 
     // THEN
     // I expect the error handler to have been called with the right error
     expect(catchFn).toHaveBeenLastCalledWith(new Error('Got 422 on token refresh; clearing both auth tokens'))
     // and the storage to have been cleared
-    expect(localStorage.getItem(STORAGE_KEY)).toBeNull()
+    expect(localStorage.getItem('key')).toBeNull()
   })
 
   it('refreshes the access token if it does not have an expiration', async () => {
@@ -138,18 +137,18 @@ describe('refreshTokenIfNeeded', () => {
 
     // and this token is stored in local storage
     const tokens = { accessToken: expiredToken, refreshToken: 'refreshtoken' }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(tokens))
+    localStorage.setItem('key', JSON.stringify(tokens))
 
     // and I have a requestRefresh function that returns an access token
     const requestRefresh = async () => 'newaccesstoken'
 
     // WHEN
     // I call refreshTokenIfNeeded
-    const result = await refreshTokenIfNeeded(requestRefresh)
+    const result = await refreshTokenIfNeeded('key', requestRefresh)
 
     // THEN
     // I expect the stored access token to have been updated
-    const storedTokens = localStorage.getItem(STORAGE_KEY) as string
+    const storedTokens = localStorage.getItem('key') as string
     expect(JSON.parse(storedTokens)).toEqual({ accessToken: 'newaccesstoken', refreshToken: 'refreshtoken' })
 
     // and the result to be the new access token
@@ -169,18 +168,18 @@ describe('refreshTokenIfNeeded', () => {
 
     // and this token is stored in local storage
     const tokens = { accessToken: expiredToken, refreshToken: 'refreshtoken' }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(tokens))
+    localStorage.setItem('key', JSON.stringify(tokens))
 
     // and I have a requestRefresh function that returns an access token
     const requestRefresh = async () => 'newaccesstoken'
 
     // WHEN
     // I call refreshTokenIfNeeded
-    const result = await refreshTokenIfNeeded(requestRefresh)
+    const result = await refreshTokenIfNeeded('key', requestRefresh)
 
     // THEN
     // I expect the stored access token to have been updated
-    const storedTokens = localStorage.getItem(STORAGE_KEY) as string
+    const storedTokens = localStorage.getItem('key') as string
     expect(JSON.parse(storedTokens)).toEqual({ accessToken: 'newaccesstoken', refreshToken: 'refreshtoken' })
 
     // and the result to be the new access token
@@ -200,18 +199,18 @@ describe('refreshTokenIfNeeded', () => {
 
     // and this token is stored in local storage
     const tokens = { accessToken: expiredToken, refreshToken: 'refreshtoken' }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(tokens))
+    localStorage.setItem('key', JSON.stringify(tokens))
 
     // and I have a requestRefresh function that returns both tokens
     const requestRefresh = async () => ({ accessToken: 'newaccesstoken', refreshToken: 'newrefreshtoken' })
 
     // WHEN
     // I call refreshTokenIfNeeded
-    const result = await refreshTokenIfNeeded(requestRefresh)
+    const result = await refreshTokenIfNeeded('key', requestRefresh)
 
     // THEN
     // I expect both the stord tokens to have been updated
-    const storedTokens = localStorage.getItem(STORAGE_KEY) as string
+    const storedTokens = localStorage.getItem('key') as string
     expect(JSON.parse(storedTokens)).toEqual({ accessToken: 'newaccesstoken', refreshToken: 'newrefreshtoken' })
 
     // and the result to be the new access token
@@ -231,7 +230,7 @@ describe('refreshTokenIfNeeded', () => {
 
     // and this token is stored in local storage
     const tokens = { accessToken: expiredToken, refreshToken: 'refreshtoken' }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(tokens))
+    localStorage.setItem('key', JSON.stringify(tokens))
 
     // and I have a requestRefresh function that returns an access token
     const requestRefresh = async () => ({ access_token: 'wrongkey!', refresh_token: 'anotherwrongkey!' })
@@ -241,7 +240,7 @@ describe('refreshTokenIfNeeded', () => {
 
     // WHEN
     // I call refreshTokenIfNeeded
-    await refreshTokenIfNeeded(requestRefresh as any).catch(errorHandler)
+    await refreshTokenIfNeeded('key', requestRefresh as any).catch(errorHandler)
 
     // THEN
     // I expect the error handler to have been called with the right error

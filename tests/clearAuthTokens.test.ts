@@ -1,5 +1,5 @@
-import { STORAGE_KEY } from '../src/StorageKey';
 import { clearAuthTokens } from '../index';
+import {GetStorageKey} from "../src/StorageKeys";
 
 
 describe('clearAuthTokens', () => {
@@ -7,7 +7,7 @@ describe('clearAuthTokens', () => {
     // GIVEN
     // Tokens are stored in localStorage
     const tokens = { accessToken: 'accesstoken', refreshToken: 'refreshtoken' }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(tokens))
+    localStorage.setItem(GetStorageKey(), JSON.stringify(tokens))
 
     // WHEN
     // I call clearAuthTokens
@@ -15,6 +15,6 @@ describe('clearAuthTokens', () => {
 
     // THEN
     // I expect the localstorage to be empty
-    expect(localStorage.getItem(STORAGE_KEY)).toBeNull()
+    expect(localStorage.getItem(GetStorageKey())).toBeNull()
   })
 })

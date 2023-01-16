@@ -7,9 +7,10 @@ import { IAuthTokenInterceptorConfig } from './IAuthTokenInterceptorConfig'
 import { TokenRefreshRequest } from './TokenRefreshRequest'
 import { Token } from './Token'
 import jwtDecode, { JwtPayload } from 'jwt-decode'
-import { STORAGE_KEY } from './StorageKey'
 import { getBrowserLocalStorage } from './getBrowserLocalStorage'
 import { applyStorage } from './applyStorage'
+import {StorageKey} from "./StorageKeyType";
+import {GetStorageKey} from "./StorageKeys";
 
 // a little time before expiration to try refresh (seconds)
 let expireFudge = 10
@@ -87,10 +88,11 @@ const isTokenExpired = (token: Token): boolean => {
 /**
  * Refreshes the access token using the provided function
  *
+ * @param storage_key
  * @param {requestRefresh} requestRefresh - Function that is used to get a new access token
  * @returns {string} - Fresh access token
  */
-const refreshToken = async (requestRefresh: TokenRefreshRequest): Promise<Token> => {
+const refreshToken = async (storage_key: StorageKey, requestRefresh: TokenRefreshRequest): Promise<Token> => {
   const refreshToken = getRefreshToken()
   if (!refreshToken) throw new Error('No refresh token available')
 
@@ -100,10 +102,10 @@ const refreshToken = async (requestRefresh: TokenRefreshRequest): Promise<Token>
     // Refresh and store access token using the supplied refresh function
     const newTokens = await requestRefresh(refreshToken)
     if (typeof newTokens === 'object' && newTokens?.accessToken) {
-      await setAuthTokens(newTokens)
+      await setAuthTokens(storage_key, newTokens)
       return newTokens.accessToken
     } else if (typeof newTokens === 'string') {
-      await setAccessToken(newTokens)
+      await setAccessToken(storage_key, newTokens)
       return newTokens
     }
 
@@ -114,7 +116,7 @@ const refreshToken = async (requestRefresh: TokenRefreshRequest): Promise<Token>
       const status = error.response?.status
       if (status === 401 || status === 422) {
         // The refresh token is invalid so remove the stored tokens
-        StorageProxy.Storage?.remove(STORAGE_KEY)
+        StorageProxy.Storage?.remove(GetStorageKey())
         throw new Error(`Got ${status} on token refresh; clearing both auth tokens`)
       }
     }
@@ -138,10 +140,12 @@ const refreshToken = async (requestRefresh: TokenRefreshRequest): Promise<Token>
 
 /**
  * Gets the current access token, exchanges it with a new one if it's expired and then returns the token.
+ * @param storageKey
  * @param {requestRefresh} requestRefresh - Function that is used to get a new access token
  * @returns {string} Access token
  */
 export const refreshTokenIfNeeded = async (
+    storageKey: StorageKey,
   requestRefresh: TokenRefreshRequest
 ): Promise<Token | undefined> => {
   // use access token (if we have it)
@@ -151,7 +155,7 @@ export const refreshTokenIfNeeded = async (
   if (!accessToken || isTokenExpired(accessToken)) {
     // do refresh
 
-    accessToken = await refreshToken(requestRefresh)
+    accessToken = await refreshToken(storageKey, requestRefresh)
   }
 
   return accessToken
@@ -165,8 +169,11 @@ export const refreshTokenIfNeeded = async (
  *
  * @param {IAuthTokenInterceptorConfig} config - Configuration for the interceptor
  * @returns {Promise} Promise that resolves in the supplied requestConfig
+ * @param storage_key
  */
-export const authTokenInterceptor = ({
+export const authTokenInterceptor = (
+    storage_key: StorageKey,
+    {
   header = 'Authorization',
   headerPrefix = 'Bearer ',
   requestRefresh,
@@ -197,7 +204,7 @@ export const authTokenInterceptor = ({
     // Do refresh if needed
     let accessToken
     try {
-      accessToken = await refreshTokenIfNeeded(requestRefresh)
+      accessToken = await refreshTokenIfNeeded(storage_key, requestRefresh)
       resolveQueue(accessToken)
     } catch (error: unknown) {
       if (error instanceof Error) {

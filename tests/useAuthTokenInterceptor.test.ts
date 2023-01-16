@@ -12,7 +12,7 @@ describe('useAuthTokenInterceptor', () => {
     // THEN
     // I expect an error to have been called
     expect(() => {
-      useAuthTokenInterceptor(totallyNotAnAxiosInstance as any, { requestRefresh: jest.fn() })
+      useAuthTokenInterceptor('key', totallyNotAnAxiosInstance as any, { requestRefresh: jest.fn() })
     }).toThrow('invalid axios instance: [object Object]')
   })
 
@@ -26,7 +26,7 @@ describe('useAuthTokenInterceptor', () => {
 
     // WHEN
     // I call applyAuthTokenInterceptor
-    useAuthTokenInterceptor(instance, { requestRefresh: jest.fn() })
+    useAuthTokenInterceptor('key', instance, { requestRefresh: jest.fn() })
 
     // THEN
     // I expect an interceptor to have been added

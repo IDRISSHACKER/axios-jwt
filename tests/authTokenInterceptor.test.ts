@@ -20,7 +20,7 @@ describe('authTokenInterceptor', () => {
 
     // WHEN
     // I create the interceptor and call it
-    const interceptor = authTokenInterceptor(config)
+    const interceptor = authTokenInterceptor('key', config)
 
     const result = await interceptor(exampleConfig)
 
@@ -63,7 +63,7 @@ describe('authTokenInterceptor', () => {
 
     // WHEN
     // I create the interceptor and call it
-    const interceptor = authTokenInterceptor(config)
+    const interceptor = authTokenInterceptor('key', config)
     const result = await interceptor(exampleConfig)
 
     // THEN
@@ -112,7 +112,7 @@ describe('authTokenInterceptor', () => {
 
     // WHEN
     // I create the interceptor and call it
-    const interceptor = authTokenInterceptor(config)
+    const interceptor = authTokenInterceptor('key', config)
     await interceptor(exampleConfig).catch(catchFn)
 
     // THEN
@@ -153,7 +153,7 @@ describe('authTokenInterceptor', () => {
 
     // WHEN
     // I create the interceptor and call it
-    const interceptor = authTokenInterceptor(config)
+    const interceptor = authTokenInterceptor('key', config)
     const result = await interceptor(exampleConfig)
 
     // THEN
@@ -204,7 +204,7 @@ describe('authTokenInterceptor', () => {
 
     // WHEN
     // I create 3 interceptor and call them all at once
-    const interceptor = authTokenInterceptor(config)
+    const interceptor = authTokenInterceptor('key', config)
     const results = await Promise.all([
       interceptor(exampleConfig),
       interceptor(exampleConfig),
